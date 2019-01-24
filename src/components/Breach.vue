@@ -65,7 +65,7 @@ export default {
       this.breach.Domain === "" &&
         arr.push({
           cls: "is-light",
-          label: `No domain ${this.icon("fa-ban has-text-danger")}`,
+          label: "No domain", // `No domain ${this.icon("has-text-danger")}`,
           href: `?q=domain&value=`
         });
       !this.breach.IsVerified &&
