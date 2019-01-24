@@ -1,16 +1,16 @@
 {
-  "name": "hibp-vue-bulga",
+  "name": "hibp-vue-bulma",
+  "description": "Have I Been Pwned? w/ Vue",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+  "author": "Peter deHaan <peter@deseloper.com> (https://about.me/peterdehaan)",
+  "bugs": {
+    "url": "https://github.com/pdehaan/hibp-vue-bulga/issues"
   },
   "dependencies": {
-    "axios": "0.18.0",
-    "bulma": "0.7.2",
-    "vue": "^2.5.21"
+    "axios": "^0.18.0",
+    "bulma": "^0.7.2",
+    "vue": "^2.5.21",
+    "vue-lazyload": "1.2.6"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
@@ -26,6 +26,9 @@
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
+  "homepage": "https://github.com/pdehaan/hibp-vue-bulga#readme",
+  "keywords": [],
+  "license": "MPL-2.0",
   "lint-staged": {
     "*.js": [
       "vue-cli-service lint",
@@ -35,5 +38,16 @@
       "vue-cli-service lint",
       "git add"
     ]
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pdehaan/hibp-vue-bulga.git"
+  },
+  "scripts": {
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "now-build": "npm run build",
+    "serve": "vue-cli-service serve"
   }
 }

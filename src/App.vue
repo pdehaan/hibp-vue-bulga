@@ -1,5 +1,13 @@
 <template>
   <main id="app">
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container has-text-left">
+          <h1 class="title is-size-1"><a href="/">Have You Been Pwned?</a></h1>
+          <h2 class="subtitle">Breach List</h2>
+        </div>
+      </div>
+    </section>
     <section class="section">
       <BreachList class="container"/>
     </section>

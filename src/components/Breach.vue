@@ -1,54 +1,42 @@
 <template>
   <div>
-    <article class="card" :class="{'has-background-grey-lighter': breach.IsSensitive}">
-      <header class="card-header has-background-dark" :class="{'has-background-danger': breach.IsSensitive, 'has-background-info': breach.IsSpamList, 'has-background-warning': breach.IsFabricated}">
-        <h1 class="card-header-title has-text-light">{{ idx }}. {{breach.Title }}</h1>
+    <article class="message is-dark" :class="{'is-danger': breach.IsSensitive, 'is-primary': !breach.IsVerified, 'is-info': breach.IsSpamList, 'is-warning': breach.IsFabricated}">
+      <header class="message-header">
+        <h1 class="has-white-text"><span class="has-text-grey-light subtitle is-size-6">{{ idx }}.&nbsp;</span> <strong class="title is-uppercase is-size-5">{{ breach.Title }}</strong></h1>
+          <div class="message-footer tags" v-if="tags.length">
+            <a :href="tag.href"
+              class="tag is-rounded is-small is-bordered"
+              v-html="tag.label"
+              v-for="tag in tags"
+              :key="tag.label"
+              :class="tag.cls" />
+        </div>
       </header>
-      <div class="card-content">
-        <div class="content has-text-left">
-          <figure class="image is-48x48 is-pulled-right">
-            <img :src="breach.LogoPath" :alt="breach.Title" />
-          </figure>
+      <section class="message-body has-text-left">
+        <figure class="image is-48x48 is-pulled-right">
+          <img v-lazy="breach.LogoPath" :alt="breach.Title" />
+        </figure>
 
-          <dl>
-            <dt class="has-text-weight-bold" v-if="breach.Domain">Domain:</dt>
-            <dd v-if="breach.Domain" v-text="breach.Domain"></dd>
+        <div class="content">
+          <p v-if="breach.Domain"><span :class="labelClass">Domain:</span> {{ breach.Domain }}</p>
+          <p><span :class="labelClass">Breach Date:</span> <time :datetime="breach.BreachDate">{{ breach.BreachDate | dateFormat }}</time></p>
+          <p><span :class="labelClass">Added Date:</span> <time :datetime="breach.AddedDate">{{ breach.AddedDate | dateFormat }}</time> &nbsp; <small class="has-text-grey">(+{{ dateDiffAdded() }} days)</small></p>
+          <p v-if="!this.isSameDate()"><span :class="labelClass">Modified Date:</span> <time :datetime="breach.ModifiedDate">{{ breach.ModifiedDate | dateFormat }}</time> &nbsp; <small class="has-text-grey">(+{{ dateDiffModified() }} days)</small></p>
+          <p><span :class="labelClass">Compromised Accounts:</span> {{ breach.PwnCount | numberFormat }}</p>
+          <p><span :class="labelClass">Compromised Data:</span>
+            <span class="tags">
+              <a :href="dataClassHref(dataClass)"
+                class="tag button is-outlined"
+                v-for="dataClass in breach.DataClasses"
+                v-text="dataClass"
+                :key="dataClass" />
+            </span></p>
 
-            <dt class="has-text-weight-bold">Breach Date:</dt>
-            <dd><time :datetime="breach.BreachDate">{{ breach.BreachDate | dateFormat }}</time></dd>
-          
-            <dt class="has-text-weight-bold">Added Date:</dt>
-            <dd>
-              <time :datetime="breach.AddedDate">{{ breach.AddedDate | dateFormat }}</time> &nbsp;
-              <sup class="has-text-grey">(+{{ dateDiffAdded() }} days)</sup>
-            </dd>
-
-            <dt class="has-text-weight-bold" v-if="!this.isSameDate()">Modified Date:</dt>
-            <dd v-if="!this.isSameDate()">
-              <time :datetime="breach.ModifiedDate">{{ breach.ModifiedDate | dateFormat }}</time> &nbsp;
-              <sup class="has-text-grey">(+{{ dateDiffModified() }} days)</sup>
-              </dd>
-
-            <dt class="has-text-weight-bold">Compromised Accounts:</dt>
-            <dd>{{ breach.PwnCount | numberFormat }}</dd>
-
-            <dt class="has-text-weight-bold">Compromised Data:</dt>
-            <dd class="tags">
-              <span class="tag" v-for="dataClass in breach.DataClasses" :key="dataClass" v-text="dataClass" />
-            </dd>
-          </dl>
-
-          <div v-if="false">
-            <hr />
-            <p v-html="breach.Description" />
-          </div>
+          <blockquote class="is-size-7">
+            <p v-html="breach.Description" class="has-text-black" />
+          </blockquote>
         </div>
-      </div>
-      <footer class="card-footer" v-if="tags.length">
-        <div class="card-footer-item tags">
-          <span v-for="(tag, idx) in tags" :key="idx" class="tag is-rounded" :class="tag.cls" v-html="tag.label" />
-        </div>
-      </footer>
+      </section>
     </article>
   </div>
 </template>
@@ -62,35 +50,57 @@ function msToDays(ms) {
 export default {
   name: "Breach",
   props: {
-    breach: Object,
-    idx: Number
+    breach: {
+      type: Object,
+      required: true
+    },
+    idx: {
+      type: Number,
+      required: true
+    }
   },
   computed: {
-    prettyDomain() {
-      const emptyDomain = `NO DOMAIN `;
-      return this.breach.Domain || emptyDomain;
-    },
     tags() {
       const arr = [];
-      !this.breach.IsVerified &&
-        arr.push({ cls: "is-primary", label: "Unverified" });
-      this.breach.IsFabricated &&
-        arr.push({ cls: "is-warning", label: "Fabricated" });
-      this.breach.IsSensitive &&
-        arr.push({ cls: "is-danger", label: "Sensitive" });
-      this.breach.IsRetired && arr.push({ cls: "is-dark", label: "Retired" });
-      this.breach.IsSpamList &&
-        arr.push({ cls: "is-info", label: "Spam List" });
       this.breach.Domain === "" &&
         arr.push({
           cls: "is-light",
-          label:
-            "No Domain <span class='icon has-text-danger'><i class='fas fa-ban'></i></span>"
+          label: `No domain ${this.icon("fa-ban has-text-danger")}`,
+          href: `?q=domain&value=`
         });
+      !this.breach.IsVerified &&
+        arr.push({
+          cls: "is-primary",
+          label: "Unverified",
+          href: "?q=IsVerified&value=false"
+        });
+      this.breach.IsFabricated &&
+        arr.push({
+          cls: "is-warning",
+          label: "Fabricated",
+          href: "?q=IsFabricated&value=true"
+        });
+      this.breach.IsSensitive &&
+        arr.push({
+          cls: "is-danger",
+          label: "Sensitive",
+          href: "?q=IsSensitive&value=true"
+        });
+      this.breach.IsRetired && arr.push({ cls: "is-dark", label: "Retired" });
+      this.breach.IsSpamList &&
+        arr.push({
+          cls: "is-info",
+          label: "Spam List",
+          href: "?q=IsSpamList&value=true"
+        });
+
       return arr;
     }
   },
   methods: {
+    dataClassHref(value) {
+      return `?q=data&value=${encodeURIComponent(value)}`;
+    },
     dateFormat(value) {
       return new Date(value).toLocaleDateString();
     },
@@ -106,6 +116,9 @@ export default {
         new Date(ModifiedDate).getTime() - new Date(AddedDate).getTime();
       return Math.ceil(msToDays(diffMS));
     },
+    icon(name) {
+      return `<span class="icon"><i class="fas ${name}" /></span>`;
+    },
     isSameDate() {
       const { AddedDate, ModifiedDate } = this.breach;
       return this.dateFormat(AddedDate) === this.dateFormat(ModifiedDate);
@@ -114,13 +127,21 @@ export default {
   filters: {
     classes(value) {
       return value.join(", ");
-    },
-    dateFormat(value) {
-      return new Date(value).toLocaleDateString();
-    },
-    numberFormat(value) {
-      return Number(value).toLocaleString();
     }
+  },
+  data() {
+    return {
+      labelClass: ["has-text-weight-bold", "title", "is-6"]
+    };
   }
 };
 </script>
+
+<style scoped>
+.is-bordered {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.content time {
+  padding: 12px;
+}
+</style>

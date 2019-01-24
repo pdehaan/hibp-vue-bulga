@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "hibp-vue-bulma",
+  "builds": [
+    { "src": "package.json", "use": "@now/static-build" }
+  ],
+  "public": true
+}
