@@ -2,14 +2,17 @@
   <div>
     <article class="message is-dark" :class="{'is-danger': breach.IsSensitive, 'is-primary': !breach.IsVerified, 'is-info': breach.IsSpamList, 'is-warning': breach.IsFabricated}">
       <header class="message-header">
-        <h1 class="has-white-text"><span class="has-text-grey-light subtitle is-size-6">{{ idx }}.&nbsp;</span> <strong class="title is-uppercase is-size-5">{{ breach.Title }}</strong></h1>
-          <div class="message-footer tags" v-if="tags.length">
-            <a :href="tag.href"
-              class="tag is-rounded is-small is-bordered"
-              v-html="tag.label"
-              v-for="tag in tags"
-              :key="tag.label"
-              :class="tag.cls" />
+        <h1 class="has-white-text">
+          <span class="has-text-grey-light subtitle is-size-6">{{ idx }}.&nbsp;</span>
+          <a :href="monitorLink(breach.Name)" target="_blank" rel="noreferrer noopener"><strong class="title is-uppercase is-size-5">{{ breach.Title }}</strong></a>
+        </h1>
+        <div class="message-footer tags" v-if="tags.length">
+          <a :href="tag.href"
+            class="tag is-rounded is-small is-bordered"
+            v-html="tag.label"
+            v-for="tag in tags"
+            :key="tag.label"
+            :class="tag.cls" />
         </div>
       </header>
       <section class="message-body has-text-left">
@@ -122,6 +125,9 @@ export default {
     isSameDate() {
       const { AddedDate, ModifiedDate } = this.breach;
       return this.dateFormat(AddedDate) === this.dateFormat(ModifiedDate);
+    },
+    monitorLink(value) {
+      return `https://monitor.firefox.com/?breach=${encodeURIComponent(value)}`;
     }
   },
   filters: {
